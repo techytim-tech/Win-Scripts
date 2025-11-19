@@ -184,15 +184,16 @@ function Show-PackageManagers {
 
         Write-Host ""
         Write-Host -NoNewline "$MS_LIGHT_BLUE$BOLD Your choice: $RESET"
-        $choice = Read-Host
+        
+        $key = Get-SingleKey
 
-        if ($choice -match "^[bB]$") { return }
+        if ($key -match '[bB]') { return }
 
-        if ([int]::TryParse($choice, [ref]$null) -and $choice -ge 1 -and $choice -le $pmList.Count) {
-            Show-PMDetails ($choice - 1)
-        } else {
-            print_warning "Invalid choice"
-            Start-Sleep -Milliseconds 800
+        if ($key -match '[1-4]') {
+            $choice = [int]$key.ToString()
+            if ($choice -ge 1 -and $choice -le $pmList.Count) {
+                Show-PMDetails ($choice - 1)
+            }
         }
     }
 }
@@ -323,10 +324,26 @@ function Uninstall-PM($id) {
 # ======================= Terminals =======================
 
 function Show-Terminals {
-    if (-not $hasWinget) {
+    # Check winget availability
+    $wingetAvailable = $false
+    try {
+        $wingetCmd = Get-Command winget -ErrorAction SilentlyContinue
+        if ($wingetCmd) {
+            $wingetAvailable = $true
+        } else {
+            $wingetPath = "$env:LOCALAPPDATA\Microsoft\WindowsApps\winget.exe"
+            if (Test-Path $wingetPath) {
+                $wingetAvailable = $true
+            }
+        }
+    } catch {
+        $wingetAvailable = $false
+    }
+
+    if (-not $wingetAvailable) {
         Clear-Host
         print_header "Terminals"
-        print_warning "Winget not detected — recommended for installing terminals"
+        print_warning "Winget not detected — required for installing terminals"
         print_info "Go to 'Package Managers' → install Winget or UniGetUI first"
         Write-Host "`nPress any key to return..."
         $null = $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
@@ -341,7 +358,17 @@ function Show-Terminals {
 
         for ($i = 0; $i -lt $terminalsList.Count; $i++) {
             $app = $terminalsList[$i]
-            $status = if ((winget list -e --id $app.WingetId 2>$null | Select-String -Quiet $app.WingetId)) { "$GREEN[+]$RESET" } else { "   " }
+            $status = "   "
+            try {
+                if ($wingetAvailable) {
+                    $checkInstalled = winget list -e --id $app.WingetId 2>$null | Select-String -Quiet $app.WingetId
+                    if ($checkInstalled) {
+                        $status = "$GREEN[+]$RESET"
+                    }
+                }
+            } catch {
+                # Silently continue if check fails
+            }
             Write-Host "$MS_BLUE$BOLD$($i+1).$RESET $status $WHITE$($app.Name.PadRight(20))$GRAY$($app.Desc)$RESET"
         }
 
@@ -352,22 +379,43 @@ function Show-Terminals {
 
         Write-Host ""
         Write-Host -NoNewline "$MS_LIGHT_BLUE$BOLD Your choice: $RESET"
-        $choice = Read-Host
+        
+        $key = Get-SingleKey
+        
+        if ($key -match '[bB]') { return }
 
-        if ($choice -match "^[bB]$") { return }
-
-        if ([int]::TryParse($choice, [ref]$null) -and $choice -ge 1 -and $choice -le $terminalsList.Count) {
-            Show-TerminalDetails ($choice - 1)
-        } else {
-            print_warning "Invalid choice"
-            Start-Sleep -Milliseconds 800
+        if ($key -match '[1-4]') {
+            $choice = [int]$key.ToString()
+            if ($choice -ge 1 -and $choice -le $terminalsList.Count) {
+                Show-TerminalDetails ($choice - 1)
+            }
         }
     }
 }
 
 function Show-TerminalDetails($index) {
     $app = $terminalsList[$index]
-    $installed = (winget list -e --id $app.WingetId 2>$null | Select-String -Quiet $app.WingetId)
+    
+    # Check if terminal is installed
+    $installed = $false
+    try {
+        $wingetAvailable = $false
+        $wingetCmd = Get-Command winget -ErrorAction SilentlyContinue
+        if ($wingetCmd) {
+            $wingetAvailable = $true
+        } else {
+            $wingetPath = "$env:LOCALAPPDATA\Microsoft\WindowsApps\winget.exe"
+            if (Test-Path $wingetPath) {
+                $wingetAvailable = $true
+            }
+        }
+        
+        if ($wingetAvailable) {
+            $installed = (winget list -e --id $app.WingetId 2>$null | Select-String -Quiet $app.WingetId)
+        }
+    } catch {
+        $installed = $false
+    }
 
     Clear-Host
     print_header "$($app.Name) Details"
@@ -453,17 +501,14 @@ function Show-Extras {
 
         Write-Host ""
         Write-Host -NoNewline "$MS_LIGHT_BLUE$BOLD Your choice: $RESET"
-        $choice = Read-Host
+        
+        $key = Get-SingleKey
 
-        if ($choice -match "^[bB]$") { return }
+        if ($key -match '[bB]') { return }
 
-        if ($choice -eq "1") { Setup-WingetForTerminal }
-        elseif ($choice -eq "2") { Install-MicrosoftUIXaml }
-        elseif ($choice -eq "3") { Show-PowerShell7Details }
-        else {
-            print_warning "Invalid choice"
-            Start-Sleep -Milliseconds 800
-        }
+        if ($key -eq '1') { Setup-WingetForTerminal }
+        elseif ($key -eq '2') { Install-MicrosoftUIXaml }
+        elseif ($key -eq '3') { Show-PowerShell7Details }
     }
 }
 
@@ -737,21 +782,19 @@ while ($true) {
     if ($detected) { print_info "Detected: $detected" } else { print_warning "No package manager detected" }
 
     Write-Host ""
-    Write-Host "$RED$BOLD b$RESET $WHITE Quit$RESET"
+    Write-Host "$RED$BOLD q$RESET $WHITE Quit$RESET"
     Write-Host ""
     Write-Host -NoNewline "$MS_LIGHT_BLUE$BOLD Select category: $RESET"
-    $choice = Read-Host
+    
+    $key = Get-SingleKey
 
-    if ($choice -eq "1") { Show-PackageManagers }
-    elseif ($choice -eq "2") { Show-Terminals }
-    elseif ($choice -eq "3") { Show-Extras }
-    elseif ($choice -match "^[bB]$") {
+    if ($key -eq '1') { Show-PackageManagers }
+    elseif ($key -eq '2') { Show-Terminals }
+    elseif ($key -eq '3') { Show-Extras }
+    elseif ($key -match '[qQ]') {
         Clear-Host
         print_header "Goodbye!"
         Write-Host "$WHITE Thank you for using Windows Tools Installer!$RESET`n"
         break
-    } else {
-        print_warning "Invalid choice"
-        Start-Sleep -Milliseconds 800
     }
 }
