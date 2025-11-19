@@ -27,22 +27,21 @@ function print_header($Text) {
     if (-not $cols -or $cols -lt 60) { $cols = 80 }
     $line = '═' * ($cols - 2)
     
-    # Windows PowerShell Logo (ASCII Art)
+    # Windows Flag Logo (ASCII Art)
     Write-Host ""
-    Write-Host "$MS_BLUE$BOLD     ╔══════════════════════════════════════╗$RESET"
-    Write-Host "$MS_BLUE$BOLD     ║$MS_LIGHT_BLUE  ██████╗  ██████╗ ██╗    ██╗███████╗██████╗  $MS_BLUE║$RESET"
-    Write-Host "$MS_BLUE$BOLD     ║$MS_LIGHT_BLUE  ██╔══██╗██╔═══██╗██║    ██║██╔════╝██╔══██╗ $MS_BLUE║$RESET"
-    Write-Host "$MS_BLUE$BOLD     ║$MS_LIGHT_BLUE  ██████╔╝██║   ██║██║ █╗ ██║█████╗  ██████╔╝ $MS_BLUE║$RESET"
-    Write-Host "$MS_BLUE$BOLD     ║$MS_LIGHT_BLUE  ██╔═══╝ ██║   ██║██║███╗██║██╔══╝  ██╔══██╗ $MS_BLUE║$RESET"
-    Write-Host "$MS_BLUE$BOLD     ║$MS_LIGHT_BLUE  ██║     ╚██████╔╝╚███╔███╔╝███████╗██║  ██║ $MS_BLUE║$RESET"
-    Write-Host "$MS_BLUE$BOLD     ║$MS_LIGHT_BLUE  ╚═╝      ╚═════╝  ╚══╝╚══╝ ╚══════╝╚═╝  ╚═╝ $MS_BLUE║$RESET"
-    Write-Host "$MS_BLUE$BOLD     ║$MS_LIGHT_BLUE       ███████╗██╗  ██╗███████╗██╗     ██╗     $MS_BLUE║$RESET"
-    Write-Host "$MS_BLUE$BOLD     ║$MS_LIGHT_BLUE       ██╔════╝██║  ██║██╔════╝██║     ██║     $MS_BLUE║$RESET"
-    Write-Host "$MS_BLUE$BOLD     ║$MS_LIGHT_BLUE       ███████╗███████║█████╗  ██║     ██║     $MS_BLUE║$RESET"
-    Write-Host "$MS_BLUE$BOLD     ║$MS_LIGHT_BLUE       ╚════██║██╔══██║██╔══╝  ██║     ██║     $MS_BLUE║$RESET"
-    Write-Host "$MS_BLUE$BOLD     ║$MS_LIGHT_BLUE       ███████║██║  ██║███████╗███████╗███████╗$MS_BLUE║$RESET"
-    Write-Host "$MS_BLUE$BOLD     ║$MS_LIGHT_BLUE       ╚══════╝╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝$MS_BLUE║$RESET"
-    Write-Host "$MS_BLUE$BOLD     ╚══════════════════════════════════════╝$RESET"
+    Write-Host "$MS_BLUE$BOLD                 ██████████████  ██████████████$RESET"
+    Write-Host "$MS_BLUE$BOLD                 ██████████████  ██████████████$RESET"
+    Write-Host "$MS_BLUE$BOLD                 ██████████████  ██████████████$RESET"
+    Write-Host "$MS_BLUE$BOLD                 ██████████████  ██████████████$RESET"
+    Write-Host "$MS_BLUE$BOLD                 ██████████████  ██████████████$RESET"
+    Write-Host ""
+    Write-Host "$MS_LIGHT_BLUE$BOLD                 ██████████████  ██████████████$RESET"
+    Write-Host "$MS_LIGHT_BLUE$BOLD                 ██████████████  ██████████████$RESET"
+    Write-Host "$MS_LIGHT_BLUE$BOLD                 ██████████████  ██████████████$RESET"
+    Write-Host "$MS_LIGHT_BLUE$BOLD                 ██████████████  ██████████████$RESET"
+    Write-Host "$MS_LIGHT_BLUE$BOLD                 ██████████████  ██████████████$RESET"
+    Write-Host ""
+    Write-Host "$MS_BLUE$BOLD            Windows Package Manager Installer$RESET"
     Write-Host ""
     
     Write-Host "$MS_BLUE$BOLD╔$line╗$RESET"
@@ -78,7 +77,7 @@ $pmList = @(
 $terminalsList = @(
     [PSCustomObject]@{Id="alacritty";Name="Alacritty";Desc="Fast, cross-platform, OpenGL terminal emulator";WingetId="Alacritty.Alacritty"}
     [PSCustomObject]@{Id="wezterm";Name="WezTerm";Desc="GPU-accelerated terminal written in Rust";WingetId="wez.wezterm"}
-    [PSCustomObject]@{Id="windowsterminal";Name="Windows Terminal";Desc="Modern Microsoft terminal with tabs & panes";WingetId="Microsoft.WindowsTerminal"}
+    [PSCustomObject]@{Id="windowsterminal";Name="Windows Terminal";Desc="Modern Microsoft terminal with tabs and panes";WingetId="Microsoft.WindowsTerminal"}
     [PSCustomObject]@{Id="warp";Name="Warp";Desc="Modern Rust-based terminal with AI features";WingetId="Warp.Warp"}
 )
 
@@ -135,9 +134,9 @@ function Show-PMDetails($index) {
 
     $installed = Get-IsPMInstalled $app.Id
 
-    Write-Host "$MS_LIGHT_BLUE$BOLDPackage:$RESET $WHITE$($app.Name)$RESET"
-    Write-Host "$MS_LIGHT_BLUE$BOLDStatus:$RESET $(if ($installed) {"$GREEN Installed$RESET"} else {"$RED Not installed$RESET"})"
-    Write-Host "$MS_LIGHT_BLUE$BOLDDescription:$RESET $WHITE$($app.Desc)$RESET"
+    Write-Host "$MS_LIGHT_BLUE${BOLD}Package:$RESET $WHITE$($app.Name)$RESET"
+    Write-Host "$MS_LIGHT_BLUE${BOLD}Status:$RESET $(if ($installed) {"$GREEN Installed$RESET"} else {"$RED Not installed$RESET"})"
+    Write-Host "$MS_LIGHT_BLUE${BOLD}Description:$RESET $WHITE$($app.Desc)$RESET"
     Write-Host ""
 
     if ($app.Id -eq "winget") {
@@ -276,9 +275,9 @@ function Show-TerminalDetails($index) {
     Clear-Host
     print_header "$($app.Name) Details"
 
-    Write-Host "$MS_LIGHT_BLUE$BOLDTerminal:$RESET $WHITE$($app.Name)$RESET"
-    Write-Host "$MS_LIGHT_BLUE$BOLDWinget ID:$RESET $LIGHT_GRAY$($app.WingetId)$RESET"
-    Write-Host "$MS_LIGHT_BLUE$BOLDDescription:$RESET $WHITE$($app.Desc)$RESET"
+    Write-Host "$MS_LIGHT_BLUE${BOLD}Terminal:$RESET $WHITE$($app.Name)$RESET"
+    Write-Host "$MS_LIGHT_BLUE${BOLD}Winget ID:$RESET $LIGHT_GRAY$($app.WingetId)$RESET"
+    Write-Host "$MS_LIGHT_BLUE${BOLD}Description:$RESET $WHITE$($app.Desc)$RESET"
     Write-Host ""
 
     if ($installed) {
