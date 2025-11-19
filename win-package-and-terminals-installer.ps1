@@ -1,22 +1,24 @@
 # Windows Package Managers & Terminals Installer
-# PowerShell version of the original Flatpak installer with beautiful text UI (Fedora colors)
+# PowerShell script with beautiful text UI (Microsoft brand colors)
 # Supports install/uninstall of Chocolatey, Scoop, Winget, UniGetUI + popular terminals via Winget
 
 $esc = [char]27
-$FEDORA_BLUE = "$esc[38;2;60;110;180m"
-$FEDORA_LIGHT_BLUE = "$esc[38;2;123;159;210m"
+# Microsoft Brand Colors
+$MS_BLUE = "$esc[38;2;0;120;215m"        # Microsoft Blue
+$MS_LIGHT_BLUE = "$esc[38;2;80;160;240m" # Light Blue
 $WHITE = "$esc[38;2;255;255;255m"
 $LIGHT_GRAY = "$esc[38;2;220;220;220m"
-$GRAY = "$esc[38;2;180;180;180m"
-$GREEN = "$esc[38;2;115;210;115m"
-$RED = "$esc[38;2;240;85;85m"
-$YELLOW = "$esc[38;2;250;200;80m"
-$ORANGE = "$esc[38;2;250;150;50m"
-$CYAN = "$esc[38;2;100;200;230m"
+$GRAY = "$esc[38;2;150;150;150m"
+$GREEN = "$esc[38;2;16;124;16m"          # Success Green
+$RED = "$esc[38;2;232;17;35m"            # Error Red
+$YELLOW = "$esc[38;2;255;185;0m"         # Warning Yellow
+$ORANGE = "$esc[38;2;247;99;12m"         # Orange
+$CYAN = "$esc[38;2;0;183;195m"           # Cyan
 $RESET = "$esc[0m"
 $BOLD = "$esc[1m"
 
-$hasWinget = (Get-not (Get-Command winget -ErrorAction SilentlyContinue)) -eq $false
+# Check for installed package managers
+$hasWinget = (Get-Command winget -ErrorAction SilentlyContinue) -ne $null
 $hasScoop = (Get-Command scoop -ErrorAction SilentlyContinue) -ne $null
 $hasChoco = (Get-Command choco -ErrorAction SilentlyContinue) -ne $null
 
@@ -24,16 +26,35 @@ function print_header($Text) {
     $cols = $Host.UI.RawUI.WindowSize.Width
     if (-not $cols -or $cols -lt 60) { $cols = 80 }
     $line = '═' * ($cols - 2)
-    Write-Host "$FEDORA_BLUE$BOLD╔$line╗$RESET"
+    
+    # Windows PowerShell Logo (ASCII Art)
+    Write-Host ""
+    Write-Host "$MS_BLUE$BOLD     ╔══════════════════════════════════════╗$RESET"
+    Write-Host "$MS_BLUE$BOLD     ║$MS_LIGHT_BLUE  ██████╗  ██████╗ ██╗    ██╗███████╗██████╗  $MS_BLUE║$RESET"
+    Write-Host "$MS_BLUE$BOLD     ║$MS_LIGHT_BLUE  ██╔══██╗██╔═══██╗██║    ██║██╔════╝██╔══██╗ $MS_BLUE║$RESET"
+    Write-Host "$MS_BLUE$BOLD     ║$MS_LIGHT_BLUE  ██████╔╝██║   ██║██║ █╗ ██║█████╗  ██████╔╝ $MS_BLUE║$RESET"
+    Write-Host "$MS_BLUE$BOLD     ║$MS_LIGHT_BLUE  ██╔═══╝ ██║   ██║██║███╗██║██╔══╝  ██╔══██╗ $MS_BLUE║$RESET"
+    Write-Host "$MS_BLUE$BOLD     ║$MS_LIGHT_BLUE  ██║     ╚██████╔╝╚███╔███╔╝███████╗██║  ██║ $MS_BLUE║$RESET"
+    Write-Host "$MS_BLUE$BOLD     ║$MS_LIGHT_BLUE  ╚═╝      ╚═════╝  ╚══╝╚══╝ ╚══════╝╚═╝  ╚═╝ $MS_BLUE║$RESET"
+    Write-Host "$MS_BLUE$BOLD     ║$MS_LIGHT_BLUE       ███████╗██╗  ██╗███████╗██╗     ██╗     $MS_BLUE║$RESET"
+    Write-Host "$MS_BLUE$BOLD     ║$MS_LIGHT_BLUE       ██╔════╝██║  ██║██╔════╝██║     ██║     $MS_BLUE║$RESET"
+    Write-Host "$MS_BLUE$BOLD     ║$MS_LIGHT_BLUE       ███████╗███████║█████╗  ██║     ██║     $MS_BLUE║$RESET"
+    Write-Host "$MS_BLUE$BOLD     ║$MS_LIGHT_BLUE       ╚════██║██╔══██║██╔══╝  ██║     ██║     $MS_BLUE║$RESET"
+    Write-Host "$MS_BLUE$BOLD     ║$MS_LIGHT_BLUE       ███████║██║  ██║███████╗███████╗███████╗$MS_BLUE║$RESET"
+    Write-Host "$MS_BLUE$BOLD     ║$MS_LIGHT_BLUE       ╚══════╝╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝$MS_BLUE║$RESET"
+    Write-Host "$MS_BLUE$BOLD     ╚══════════════════════════════════════╝$RESET"
+    Write-Host ""
+    
+    Write-Host "$MS_BLUE$BOLD╔$line╗$RESET"
     $padding = [Math]::Floor(($cols - $Text.Length - 2) / 2)
     $left = " " * $padding
-    $right = " " * ($cols - $Text.Length - 2 - 2 * $padding)
-    Write-Host "$FEDORA_BLUE$BOLD║$left$WHITE$BOLD$Text$RESET$right$FEDORA_BLUE$BOLD║$RESET"
-    Write-Host "$FEDORA_BLUE$BOLD╚$line╝$RESET`n"
+    $right = " " * ($cols - $Text.Length - 2 - $padding)
+    Write-Host "$MS_BLUE$BOLD║$left$WHITE$BOLD$Text$right$MS_BLUE$BOLD║$RESET"
+    Write-Host "$MS_BLUE$BOLD╚$line╝$RESET`n"
 }
 
 function print_section($Text) {
-    Write-Host "`n$FEDORA_LIGHT_BLUE$BOLD▶ $Text$RESET"
+    Write-Host "`n$MS_LIGHT_BLUE$BOLD▶ $Text$RESET"
     Write-Host "$GRAY$('─' * 50)$RESET"
 }
 
@@ -56,10 +77,23 @@ $pmList = @(
 
 $terminalsList = @(
     [PSCustomObject]@{Id="alacritty";Name="Alacritty";Desc="Fast, cross-platform, OpenGL terminal emulator";WingetId="Alacritty.Alacritty"}
-    [PSCustomObject]@{Id="wezterm";Name="WezTerm";Desc="GPU-accelerated terminal written in Rust";WingetId="Wez.WezTerm"}
+    [PSCustomObject]@{Id="wezterm";Name="WezTerm";Desc="GPU-accelerated terminal written in Rust";WingetId="wez.wezterm"}
     [PSCustomObject]@{Id="windowsterminal";Name="Windows Terminal";Desc="Modern Microsoft terminal with tabs & panes";WingetId="Microsoft.WindowsTerminal"}
     [PSCustomObject]@{Id="warp";Name="Warp";Desc="Modern Rust-based terminal with AI features";WingetId="Warp.Warp"}
 )
+
+function Get-IsPMInstalled($id) {
+    switch ($id) {
+        'chocolatey' { return $hasChoco }
+        'scoop' { return $hasScoop }
+        'winget' { return $hasWinget }
+        'unigetui' { 
+            if (-not $hasWinget) { return $false }
+            return (winget list -e --id MartiCliment.UniGetUI 2>$null | Select-String -Quiet "MartiCliment.UniGetUI")
+        }
+    }
+    return $false
+}
 
 function Show-PackageManagers {
     while ($true) {
@@ -71,19 +105,19 @@ function Show-PackageManagers {
         for ($i = 0; $i -lt $pmList.Count; $i++) {
             $app = $pmList[$i]
             $status = if ((Get-IsPMInstalled $app.Id)) { "$GREEN✓$RESET" } else { " " }
-            Write-Host "$FEDORA_BLUE$BOLD$( $i+1 ).$RESET $status $WHITE$($app.Name.PadRight(15))$GRAY$app.Desc$RESET"
+            Write-Host "$MS_BLUE$BOLD$($i+1).$RESET $status $WHITE$($app.Name.PadRight(15))$GRAY$($app.Desc)$RESET"
         }
 
         Write-Host ""
         print_section "Navigation"
-        Write-Host "$FEDORA_LIGHT_BLUE$BOLD 1-$( $pmList.Count )$RESET $WHITE to view details / install/uninstall$RESET"
+        Write-Host "$MS_LIGHT_BLUE$BOLD 1-$($pmList.Count)$RESET $WHITE to view details / install/uninstall$RESET"
         Write-Host "$RED$BOLD q$RESET $WHITE back to main menu$RESET"
 
         Write-Host ""
-        Write-Host -NoNewline "$FEDORA_LIGHT_BLUE$BOLD Your choice: $RESET"
+        Write-Host -NoNewline "$MS_LIGHT_BLUE$BOLD Your choice: $RESET"
         $choice = Read-Host
 
-        if ($choice -match "^qQ]$") { return }
+        if ($choice -match "^[qQ]$") { return }
 
         if ([int]::TryParse($choice, [ref]$null) -and $choice -ge 1 -and $choice -le $pmList.Count) {
             Show-PMDetails ($choice - 1)
@@ -94,16 +128,6 @@ function Show-PackageManagers {
     }
 }
 
-function Get-IsPMInstalled($id) {
-    switch ($id -eq 'chocolatey') { return $hasChoco }
-    ($id -eq 'scoop') { return $hasScoop }
-    ($id -eq 'winget') { return $hasWinget }
-    ($id -eq 'unigetui') { 
-        if (-not $hasWinget) { return $false }
-        return (winget list -e --id MartiCliment.UniGetUI 2>$null | Select-String -Quiet "MartiCliment.UniGetUI")
-    }
-}
-
 function Show-PMDetails($index) {
     $app = $pmList[$index]
     Clear-Host
@@ -111,9 +135,9 @@ function Show-PMDetails($index) {
 
     $installed = Get-IsPMInstalled $app.Id
 
-    Write-Host "$FEDORA_LIGHT_BLUE$BOLDPackage:$RESET $WHITE$app.Name$RESET"
-    Write-Host "$FEDORA_LIGHT_BLUE$BOLDStatus:$RESET $(if ($installed) {"$GREEN Installed$RESET"} else {"$RED Not installed$RESET"})"
-    Write-Host "$FEDORA_LIGHT_BLUE$BOLDDescription:$RESET $WHITE$app.Desc$RESET"
+    Write-Host "$MS_LIGHT_BLUE$BOLDPackage:$RESET $WHITE$($app.Name)$RESET"
+    Write-Host "$MS_LIGHT_BLUE$BOLDStatus:$RESET $(if ($installed) {"$GREEN Installed$RESET"} else {"$RED Not installed$RESET"})"
+    Write-Host "$MS_LIGHT_BLUE$BOLDDescription:$RESET $WHITE$($app.Desc)$RESET"
     Write-Host ""
 
     if ($app.Id -eq "winget") {
@@ -141,16 +165,16 @@ function Show-PMDetails($index) {
         print_success "Already installed"
         Write-Host "`n$YELLOW$BOLD Actions:$RESET"
         Write-Host "$RED$BOLD [u]$RESET Uninstall"
-        Write-Host "$FEDORA_BLUE$BOLD [b]$RESET Back"
+        Write-Host "$MS_BLUE$BOLD [b]$RESET Back"
         while ($true) {
             $key = Get-SingleKey
             if ($key -match '[uU]') { Uninstall-PM $app.Id ; break }
             if ($key -match '[bB]') { return }
         }
     } else {
-        Write-Host "`n$FEDORA_BLUE$BOLD╔$( '═'═' * 58)╗$RESET"
-        Write-Host "$FEDORA_BLUE$BOLD║$YELLOW$BOLD    Do you want to install $($app.Name)?          $FEDORA_BLUE$BOLD║$RESET"
-        Write-Host "$FEDORA_BLUE$BOLD╚$( '═' * 58)╝$RESET"
+        Write-Host "`n$MS_BLUE$BOLD╔$('═' * 58)╗$RESET"
+        Write-Host "$MS_BLUE$BOLD║$YELLOW$BOLD    Do you want to install $($app.Name)?          $MS_BLUE$BOLD║$RESET"
+        Write-Host "$MS_BLUE$BOLD╚$('═' * 58)╝$RESET"
         Write-Host "`n$GREEN$BOLD [y]$RESET Install   $RED$BOLD [b]$RESET Back"
         while ($true) {
             $key = Get-SingleKey
@@ -166,7 +190,9 @@ function Show-PMDetails($index) {
 function Install-PM($id) {
     if ($id -eq "chocolatey") {
         print_section "Installing Chocolatey (requires admin)"
-        Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+        Set-ExecutionPolicy Bypass -Scope Process -Force
+        [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+        iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
         print_success "Chocolatey installed! Restart terminal for 'choco' command."
         $global:hasChoco = $true
     } elseif ($id -eq "scoop") {
@@ -185,12 +211,13 @@ function Install-PM($id) {
 
 function Uninstall-PM($id) {
     if ($id -eq "chocolatey") {
-        print_warning "Uninstall Chocolatey manually: Remove-Item "$env:ChocolateyInstall" -Recurse -Force"
+        print_warning "Uninstall Chocolatey manually: Remove-Item `"$env:ChocolateyInstall`" -Recurse -Force"
     } elseif ($id -eq "scoop") {
         print_section "Uninstalling Scoop"
         scoop uninstall scoop
         Remove-Item "$env:USERPROFILE\scoop" -Recurse -Force -ErrorAction SilentlyContinue
         print_success "Scoop uninstalled"
+        $global:hasScoop = $false
     } elseif ($id -eq "unigetui") {
         print_section "Uninstalling UniGetUI"
         winget uninstall -e --id MartiCliment.UniGetUI 2>&1 | ForEach-Object { Write-Host "$GRAY$_$RESET" }
@@ -219,21 +246,21 @@ function Show-Terminals {
         for ($i = 0; $i -lt $terminalsList.Count; $i++) {
             $app = $terminalsList[$i]
             $status = if ((winget list -e --id $app.WingetId 2>$null | Select-String -Quiet $app.WingetId)) { "$GREEN✓$RESET" } else { " " }
-            Write-Host "$FEDORA_BLUE$BOLD$( $i+1 ).$RESET $status $WHITE$($app.Name.PadRight(20))$GRAY$app.Desc$RESET"
+            Write-Host "$MS_BLUE$BOLD$($i+1).$RESET $status $WHITE$($app.Name.PadRight(20))$GRAY$($app.Desc)$RESET"
         }
 
         Write-Host ""
         print_section "Navigation"
-        Write-Host "$FEDORA_LIGHT_BLUE$BOLD 1-$( $terminalsList.Count )$RESET $WHITE select to view details$RESET"
+        Write-Host "$MS_LIGHT_BLUE$BOLD 1-$($terminalsList.Count)$RESET $WHITE select to view details$RESET"
         Write-Host "$RED$BOLD q$RESET $WHITE back to main menu$RESET"
 
         Write-Host ""
-        Write-Host -NoNewline "$FEDORA_LIGHT_BLUE$BOLD Your choice: $RESET"
+        Write-Host -NoNewline "$MS_LIGHT_BLUE$BOLD Your choice: $RESET"
         $choice = Read-Host
 
         if ($choice -match "^[qQ]$") { return }
 
-        if ([int]::TryParse($choice, [ref]0) -and $choice -ge 1 -and $choice -le $terminalsList.Count) {
+        if ([int]::TryParse($choice, [ref]$null) -and $choice -ge 1 -and $choice -le $terminalsList.Count) {
             Show-TerminalDetails ($choice - 1)
         } else {
             print_warning "Invalid choice"
@@ -249,9 +276,9 @@ function Show-TerminalDetails($index) {
     Clear-Host
     print_header "$($app.Name) Details"
 
-    Write-Host "$FEDORA_LIGHT_BLUE$BOLDTerminal:$RESET $WHITE$app.Name$RESET"
-    Write-Host "$FEDORA_LIGHT_BLUE$BOLDWinget ID:$RESET $LIGHT_GRAY$app.WingetId$RESET"
-    Write-Host "$FEDORA_LIGHT_BLUE$BOLDDescription:$RESET $WHITE$app.Desc$RESET"
+    Write-Host "$MS_LIGHT_BLUE$BOLDTerminal:$RESET $WHITE$($app.Name)$RESET"
+    Write-Host "$MS_LIGHT_BLUE$BOLDWinget ID:$RESET $LIGHT_GRAY$($app.WingetId)$RESET"
+    Write-Host "$MS_LIGHT_BLUE$BOLDDescription:$RESET $WHITE$($app.Desc)$RESET"
     Write-Host ""
 
     if ($installed) {
@@ -259,11 +286,11 @@ function Show-TerminalDetails($index) {
         Write-Host "`n$YELLOW$BOLD Actions:$RESET"
         Write-Host "$RED$BOLD [r] Reinstall$RESET"
         Write-Host "$RED$BOLD [u] Uninstall$RESET"
-        Write-Host "$FEDORA_BLUE$BOLD [b] Back$RESET"
+        Write-Host "$MS_BLUE$BOLD [b] Back$RESET"
     } else {
-        Write-Host "$FEDORA_BLUE$BOLD╔$( '═' * 60)╗$RESET"
-        Write-Host "$FEDORA_BLUE$BOLD║$YELLOW$BOLD     Install $($app.Name)?                     $FEDORA_BLUE$BOLD║$RESET"
-        Write-Host "$FEDORA_BLUE$BOLD╚$( '═' * 60)╝$RESET"
+        Write-Host "$MS_BLUE$BOLD╔$('═' * 60)╗$RESET"
+        Write-Host "$MS_BLUE$BOLD║$YELLOW$BOLD     Install $($app.Name)?                     $MS_BLUE$BOLD║$RESET"
+        Write-Host "$MS_BLUE$BOLD╚$('═' * 60)╝$RESET"
         Write-Host "`n$GREEN$BOLD [y] Install$RESET  $RED$BOLD [b] Back$RESET"
     }
 
@@ -312,8 +339,8 @@ while ($true) {
 
     print_section "Categories"
 
-    Write-Host "1. Package Managers"
-    Write-Host "2. Terminals"
+    Write-Host "$MS_BLUE$BOLD 1.$RESET $WHITE Package Managers$RESET"
+    Write-Host "$MS_BLUE$BOLD 2.$RESET $WHITE Terminals$RESET"
 
     Write-Host ""
     $detected = (@(if($hasWinget){"Winget"} if($hasScoop){"Scoop"} if($hasChoco){"Chocolatey"}) -join ", ")
@@ -322,7 +349,7 @@ while ($true) {
     Write-Host ""
     Write-Host "$RED$BOLD q$RESET $WHITE Quit$RESET"
     Write-Host ""
-    Write-Host -NoNewline "$FEDORA_LIGHT_BLUE$BOLD Select category: $RESET"
+    Write-Host -NoNewline "$MS_LIGHT_BLUE$BOLD Select category: $RESET"
     $choice = Read-Host
 
     if ($choice -eq "1") { Show-PackageManagers }
