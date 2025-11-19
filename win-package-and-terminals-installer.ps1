@@ -68,9 +68,9 @@ function Get-SingleKey {
 }
 
 $pmList = @(
+    [PSCustomObject]@{Id="winget";Name="Winget";Desc="Microsoft's official Windows Package Manager"}
     [PSCustomObject]@{Id="chocolatey";Name="Chocolatey";Desc="Classic package manager for Windows"}
     [PSCustomObject]@{Id="scoop";Name="Scoop";Desc="Lightweight command-line installer (no admin required)"}
-    [PSCustomObject]@{Id="winget";Name="Winget";Desc="Microsoft's official Windows Package Manager"}
     [PSCustomObject]@{Id="unigetui";Name="UniGetUI";Desc="Beautiful GUI for Winget/Scoop/Chocolatey"}
 )
 
@@ -142,12 +142,88 @@ function Show-PMDetails($index) {
     if ($app.Id -eq "winget") {
         if ($hasWinget) {
             print_success "Winget is already installed"
+            Write-Host ""
+            Write-Host "$YELLOW$BOLD Actions:$RESET"
+            Write-Host "$CYAN[1]$RESET Repair/Setup Winget for Terminal"
+            Write-Host "$MS_BLUE$BOLD[b]$RESET Back"
+            Write-Host ""
+            
+            while ($true) {
+                $key = Get-SingleKey
+                if ($key -eq '1') {
+                    print_section "Setting up Winget for Terminal"
+                    print_status "Adding Winget to PATH..."
+                    
+                    # Add Winget to PATH
+                    $wingetPath = "$env:LOCALAPPDATA\Microsoft\WindowsApps"
+                    $currentPath = [Environment]::GetEnvironmentVariable("Path", "User")
+                    
+                    if ($currentPath -notlike "*$wingetPath*") {
+                        [Environment]::SetEnvironmentVariable("Path", "$currentPath;$wingetPath", "User")
+                        print_success "Added Winget to PATH"
+                    } else {
+                        print_info "Winget already in PATH"
+                    }
+                    
+                    # Refresh environment variables in current session
+                    $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+                    
+                    print_status "Registering App Execution Alias..."
+                    
+                    # Enable App Execution Alias for winget
+                    $registryPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+                    if (Test-Path $registryPath) {
+                        Set-ItemProperty -Path $registryPath -Name "EnableAppExecutionAliases" -Value 1 -ErrorAction SilentlyContinue
+                        print_success "App Execution Aliases enabled"
+                    }
+                    
+                    print_status "Testing winget command..."
+                    try {
+                        $wingetVersion = winget --version
+                        print_success "Winget is working! Version: $wingetVersion"
+                        print_info "Please restart your terminal for changes to take full effect"
+                    } catch {
+                        print_warning "Please restart your terminal and try again"
+                    }
+                    
+                    break
+                } elseif ($key -match '[bB]') {
+                    return
+                }
+            }
         } else {
             print_error "Winget is not installed"
-            print_info "Install from Microsoft Store → search 'App Installer'"
-            print_info "or download from https://github.com/microsoft/winget-cli/releases/latest"
-            print_info "Direct link: https://aka.ms/getwinget"
+            Write-Host ""
+            Write-Host "$MS_LIGHT_BLUE${BOLD}Installation Options:$RESET"
+            Write-Host "$CYAN[1]$RESET Install via Microsoft Store (Recommended)"
+            Write-Host "$CYAN[2]$RESET Download from GitHub releases"
+            Write-Host "$CYAN[3]$RESET Use direct download link"
+            Write-Host "$MS_BLUE$BOLD[b]$RESET Back"
+            Write-Host ""
+            
+            while ($true) {
+                $key = Get-SingleKey
+                if ($key -eq '1') {
+                    print_info "Opening Microsoft Store..."
+                    Start-Process "ms-windows-store://pdp/?productid=9NBLGGH4NNS1"
+                    print_success "Please install 'App Installer' from the Store"
+                    break
+                } elseif ($key -eq '2') {
+                    print_info "Opening GitHub releases page..."
+                    Start-Process "https://github.com/microsoft/winget-cli/releases/latest"
+                    print_info "Download and install the .msixbundle file"
+                    break
+                } elseif ($key -eq '3') {
+                    print_info "Opening direct download link..."
+                    Start-Process "https://aka.ms/getwinget"
+                    print_success "Download will start automatically"
+                    break
+                } elseif ($key -match '[bB]') {
+                    return
+                }
+            }
         }
+        
         Write-Host "`n$WHITE Press any key to return...$RESET"
         $null = $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
         return
