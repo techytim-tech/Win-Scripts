@@ -54,15 +54,15 @@ function print_header($Text) {
 }
 
 function print_section($Text) {
-    Write-Host "`n$MS_LIGHT_BLUE$BOLD▶ $Text$RESET"
-    Write-Host "$GRAY$('─' * 50)$RESET"
+    Write-Host "`n$MS_LIGHT_BLUE$BOLD> $Text$RESET"
+    Write-Host "$GRAY$('-' * 50)$RESET"
 }
 
-function print_status($Text) { Write-Host "$CYAN➜$RESET $WHITE$Text$RESET" }
-function print_success($Text) { Write-Host "$GREEN✓$RESET $WHITE$Text$RESET" }
-function print_error($Text) { Write-Host "$RED✗$RESET $WHITE$Text$RESET" }
-function print_warning($Text) { Write-Host "$YELLOW⚠$RESET $WHITE$Text$RESET" }
-function print_info($Text) { Write-Host "$CYANℹ$RESET $WHITE$Text$RESET" }
+function print_status($Text) { Write-Host "$CYAN>$RESET $WHITE$Text$RESET" }
+function print_success($Text) { Write-Host "$GREEN[OK]$RESET $WHITE$Text$RESET" }
+function print_error($Text) { Write-Host "$RED[X]$RESET $WHITE$Text$RESET" }
+function print_warning($Text) { Write-Host "$YELLOW[!]$RESET $WHITE$Text$RESET" }
+function print_info($Text) { Write-Host "$CYAN[i]$RESET $WHITE$Text$RESET" }
 
 function Get-SingleKey {
     $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown").Character
@@ -104,7 +104,7 @@ function Show-PackageManagers {
 
         for ($i = 0; $i -lt $pmList.Count; $i++) {
             $app = $pmList[$i]
-            $status = if ((Get-IsPMInstalled $app.Id)) { "$GREEN✓$RESET" } else { " " }
+            $status = if ((Get-IsPMInstalled $app.Id)) { "$GREEN[+]$RESET" } else { "   " }
             Write-Host "$MS_BLUE$BOLD$($i+1).$RESET $status $WHITE$($app.Name.PadRight(15))$GRAY$($app.Desc)$RESET"
         }
 
@@ -203,7 +203,7 @@ function Install-PM($id) {
     } elseif ($id -eq "unigetui") {
         print_section "Installing UniGetUI"
         winget install -e --id MartiCliment.UniGetUI --accept-package-agreements --accept-source-agreements 2>&1 | ForEach-Object {
-            if ($_ -match "Downloading|Installing|Hash") { Write-Host "$ORANGE ⟳ $_$RESET" } else { Write-Host "$GRAY$_$RESET" }
+            if ($_ -match "Downloading|Installing|Hash") { Write-Host "$ORANGE [*] $_$RESET" } else { Write-Host "$GRAY$_$RESET" }
         }
         if ($LASTEXITCODE -eq 0) { print_success "UniGetUI installed!" } else { print_error "Installation failed" }
     }
@@ -245,7 +245,7 @@ function Show-Terminals {
 
         for ($i = 0; $i -lt $terminalsList.Count; $i++) {
             $app = $terminalsList[$i]
-            $status = if ((winget list -e --id $app.WingetId 2>$null | Select-String -Quiet $app.WingetId)) { "$GREEN✓$RESET" } else { " " }
+            $status = if ((winget list -e --id $app.WingetId 2>$null | Select-String -Quiet $app.WingetId)) { "$GREEN[+]$RESET" } else { "   " }
             Write-Host "$MS_BLUE$BOLD$($i+1).$RESET $status $WHITE$($app.Name.PadRight(20))$GRAY$($app.Desc)$RESET"
         }
 
