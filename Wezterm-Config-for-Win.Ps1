@@ -183,7 +183,7 @@ function Set-WeztermConfig {
         '2' {
             $ShellConfig = @"
 -- PowerShell 6
-config.default_prog = { 'pwsh', '-NoProfile' }
+config.default_prog = { 'pwsh', '-NoLogo' }
 "@
             $ShellDisplay = 'PowerShell 6'
         }
@@ -197,7 +197,7 @@ config.default_prog = { 'cmd.exe' }
         default {
             $ShellConfig = @"
 -- PowerShell 7
-config.default_prog = { 'pwsh', '-NoProfile' }
+config.default_prog = { 'pwsh', '-NoLogo' }
 "@
             $ShellDisplay = 'PowerShell 7'
         }
