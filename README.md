@@ -62,6 +62,29 @@ powershell -NoProfile -ExecutionPolicy Bypass -File win-package-and-terminals-in
 
 ---
 
+### 3. PowerShell Profile Installer (`powershell-profile-installer.ps1`)
+
+Automated installer for a custom PowerShell profile with enhanced visual features, personalized greetings, and a colorful command prompt.
+
+**Features:**
+- ✨ **Personalized Greeting Box** with time-based messages
+- 🎨 **Custom Colored Prompt** showing username, hostname, path, and Git branch
+- 🔍 **Auto-Detection** of PowerShell 6, 7, and Windows PowerShell 5.1
+- 💾 **Automatic Backups** with timestamped backup files
+- 🔧 **Shortcut Configuration** to set `-NoLogo` flag automatically
+- 📁 **Directory Creation** for profile paths
+- 🎯 **Selective Installation** to one or all PowerShell versions
+- 🎭 **Full Customization** support for names, colors, and functions
+
+**Quick Start:**
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File powershell-profile-installer.ps1
+```
+
+**Full Documentation:** [powershell-profile-installer.md](docs/powershell-profile-installer.md)
+
+---
+
 ## 🚀 Quick Start Guide
 
 ### Prerequisites
@@ -96,6 +119,7 @@ Each script has comprehensive documentation in the `docs/` folder:
 
 - [Wezterm-Config-for-Win.md](docs/Wezterm-Config-for-Win.md) - Complete WezTerm setup guide
 - [win-package-and-terminals-installer.md](docs/win-package-and-terminals-installer.md) - Package manager and terminal installer guide
+- [powershell-profile-installer.md](docs/powershell-profile-installer.md) - PowerShell profile customization guide
 
 ## 🎨 Features
 
@@ -213,4 +237,4 @@ Created with ❤️ by **TechyTim**
 
 ---
 
-**Last Updated:** November 24, 2025
+**Last Updated:** November 30, 2024
